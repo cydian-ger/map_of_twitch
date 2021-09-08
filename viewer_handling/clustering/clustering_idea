@@ -1,0 +1,5 @@
+no edges:
+makes a giant 2d array aka table
+of viewer overlap and then uses the abcd method to get communities from that
+
+this stores the overlap of the dict's (aka a list of names)

@@ -1,0 +1,13 @@
+each streamer has own dir
+contents:
+streamername.txt:
+list of streams, top = oldest, bottom = newest. (stored by stream id)
+
+stream_id_timestamp.txt:
+contains all usernames that watched this stream
+and when they left / entered
+(collect more data then is send)
+time deltas are not send to the site, but only the set of viewers is.
+
+Time interval:
+Check every 15 minutes

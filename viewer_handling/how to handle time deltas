@@ -1,0 +1,5 @@
+The user appearance basically inflicts a toggle state:
+USERNAME -> user entered
+USERNAME -> (again) user left
+This removes the need for adding time stamps or other additional data
+This should also drastically reduce the data size of deltas

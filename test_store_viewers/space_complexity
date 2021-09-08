@@ -1,0 +1,40 @@
+The file test.txt, with 1000000 usernames with an average length of 22 (range: 4-40)
+is the size of 24.031.232 Bytes / 240.303.14 Bytes (without file size) -> file byte size = 918 bytes
+so we can assume a single user takes about
+this means each user takes on an estimated:
+24.031.232 / 1.000.000 = 24,031232 ~ 24 Bytes or rather 25 bytes to be more generous
+
+Lets estimate that at each given moment there are 100 streams with 100.000 (100k) viewers each.
+An lets also assume that each 10 minutes we take a snapshot of each user, saving all 100k viewers
+Also assume that every streamer only streams for an hour and every hour a new streamer starts their stream with 100k
+on a day this would amount to:
+
+Amount of snaps each day:                10 minutes = 6 per hour. 24 * 6 = 144 snap shots
+Amount of data per snap:                 100 streams -> 100 * 100.000 = 10.000.000 viewers
+                                         1 viewer = 25 bytes, -> 250.000.000 bytes, 250MB, 0.25GB
+                                         0.25GB * 144 -> 36GB (way to huge)
+Amount of data per streamer (file size): 918 bytes per file, 100 streamers every hour -> 2400 per day
+                                         -> 2400 * 918 -> 2.203.200 Bytes -> 2MB, 0.002GB,
+                                         which is about 0,008% of the data per snap. so for every byte of data it is
+                                         fair to assume the storage size is 0,01% of the data size
+
+1 Viewer = 25 bytes + 0.25 (0,01% storage cost)
+
+In actuality the bytes per viewer will be higher if there are more streamers observed,
+but with less viewers each, amounting to the same amount of viewers.
+
+Lets use a more realistic average
+(Right now 30/08/2021 04:06 the top stream and top 100 stream are 130k and 3.5k
+ -> Ø66,75k, however there are less channels at 130k than 3.5k so lets roughly adjust for that bias (just a guess)
+(1 * 130k + 3 * 3.5k) / 4 -> Ø36k
+so 100 streams -> 100 * 36.000 -> 3.600.000
+3.600.000 * 25,25 bytes
+ 90.900.000 Bytes / 90MB, 0.09GB
+0.09GB * 144 snap -> 12,96 GB
+
+And lets also adjust for a more realistic streaming schedule of 1000 streamers streaming once a day
+(assuming a new snap doesnt add information):
+then it only amounts to the original 0,9 GB (* 10 because more streamers but less streams is realistic)
+For a year this would amount to 328,5 GB (not including expected time deltas)
+
+Switching the model from getting a snap per shot lets switch it to 24/7 observation:
