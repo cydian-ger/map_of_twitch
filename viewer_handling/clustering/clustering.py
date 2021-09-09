@@ -1,7 +1,8 @@
 # https://reader.elsevier.com/reader/sd/pii/S1877050914004256?token=24DC1F6D4C76BD0565A3D04DEBCC9BFFEA1915474CDB5697DD8112A6857484448E7DC20658C0AFB14DE8A792BC3F143E&originRegion=eu-west-1&originCreation=20210907025251
 # This algorithm is entirely based on the paper listed above
 from tqdm import tqdm
-from viewer_handling.clustering.cluster import Cluster, create_attractiveness_list, can_merge
+from viewer_handling.clustering.cluster import Cluster
+from viewer_handling.clustering.cluster_function import create_attractiveness_list, can_merge
 import warnings
 
 

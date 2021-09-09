@@ -47,6 +47,10 @@ if __name__ == "__main__":
     edge_dict_list = []
     for edge in edges:
         edge_dict_list.append({"source": edge[0], "target": edge[1], "value": edge[2]})
+
+    for clust in clusters:
+        print(clust)
+
     json_dict.update({"links": edge_dict_list})
 
     # PROBLEM -> STRINGS ARE STORED AS STRING AND NOT AS IS
