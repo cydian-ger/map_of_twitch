@@ -44,7 +44,7 @@ def get_overlap_edges_amount(cluster1: Cluster, cluster2: Cluster) -> int:
     return edge_overlap_amount
 
 
-@cache
+# @cache 1:20
 def return_attractiveness(cluster1: Cluster, cluster2: Cluster) -> float:
     """
     Attractiveness of 2 clusters is determined by dividing the combined weight of shared edges,
@@ -79,7 +79,6 @@ def create_attractiveness_list(cluster_list: [Cluster]) -> list:
     return sorted(attractiveness_list, key=lambda x: x[0], reverse=True)
 
 
-@cache
 def is_inter_interested(cluster1: Cluster, cluster2: Cluster) -> bool:
     """
     Checks if two clusters meet the condition of being inter_interested
@@ -91,7 +90,6 @@ def is_inter_interested(cluster1: Cluster, cluster2: Cluster) -> bool:
     return overlap >= len(cluster1.node_list) and overlap >= len(cluster2.node_list)
 
 
-@cache
 def can_merge(cluster1: Cluster, cluster2: Cluster, attractiveness: float) -> bool:
     """
     Checks if clusters can be merged by checking if
