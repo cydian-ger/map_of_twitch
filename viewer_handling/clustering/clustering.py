@@ -136,18 +136,23 @@ def cluster(cluster_list: list[Cluster], **kwargs) -> list[Cluster]:
     clustered_list = cluster_list
 
     progress = tqdm(range(0, iter_max), disable=iter_count)
+    progress.set_description("Calculating Clusters :")
     for _ in progress:
         # Keeps track of if
         changed = False
         attractiveness_list = create_attractiveness_list(clustered_list)
+
         for attr in attractiveness_list:
+            attractiveness = attr[0]
+            i = attr[1][0]
+            j = attr[1][1]
             # Checks if merge is possible
 
-            if can_merge(clustered_list[attr[1]], clustered_list[attr[2]], attr[0]):
+            if can_merge(clustered_list[i], clustered_list[j], attractiveness):
                 # Merges the two clusters
-                clustered_list[attr[1]].merge(cluster_list[attr[2]])
+                clustered_list[i].merge(cluster_list[j])
                 # Removes the now merged second cluster
-                clustered_list.pop(attr[2])
+                clustered_list.pop(j)
                 # indicates that a merge has happened
                 changed = True
                 break

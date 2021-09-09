@@ -12,9 +12,9 @@ if __name__ == "__main__":
     # a = get_response_from_streamer_list(streamer_list=open("streamer_list", "r").read().splitlines())
     # b = generate_current_snapshot(a)
     # # generate(b.get("name"), a)
-    # csv_name = "result/21_09_08_04_38_48"
-    csv_name = "result/21_09_08_19_37_11"
-    #
+    # csv_name = b.get("name")
+
+    csv_name = "result/21_09_09_03_37_07"
 
     with open(csv_name + "_edges.csv", newline='') as f:
         reader = csv.reader(f)
@@ -54,4 +54,4 @@ if __name__ == "__main__":
     json_dict.update({"links": edge_dict_list})
 
     # PROBLEM -> STRINGS ARE STORED AS STRING AND NOT AS IS
-    open("json_dict.json", "w").write(json.dumps(json_dict, indent=4))
+    open("json_dict.json", "w").write(json.dumps(json_dict))

@@ -1,5 +1,8 @@
+import sys
 from functools import cache
 
+import numpy as np
+from sys import getsizeof
 from viewer_handling.clustering.cluster import Cluster
 
 
@@ -44,7 +47,6 @@ def get_overlap_edges_amount(cluster1: Cluster, cluster2: Cluster) -> int:
     return edge_overlap_amount
 
 
-# @cache 1:20
 def return_attractiveness(cluster1: Cluster, cluster2: Cluster) -> float:
     """
     Attractiveness of 2 clusters is determined by dividing the combined weight of shared edges,
@@ -60,7 +62,7 @@ def return_attractiveness(cluster1: Cluster, cluster2: Cluster) -> float:
     return get_overlap_edges_sum(cluster1, cluster2) / (len(cluster1.node_list) * len(cluster2.node_list))
 
 
-def create_attractiveness_list(cluster_list: [Cluster]) -> list:
+def create_attractiveness_list(cluster_list: [Cluster]):
     """
     Creates an attractiveness list of all clusters
     List is stored in a descending way highest->lowest
@@ -68,15 +70,24 @@ def create_attractiveness_list(cluster_list: [Cluster]) -> list:
     :return:
     """
     k = len(cluster_list)
-    attractiveness_list = []
+    # Fits list size perfectly
+    a_len = int((k * (k - 1)) / 2)
+    # Init arrays
+    attractiveness_list = np.zeros(a_len, dtype=float)
+    attractiveness_list_c = np.zeros(a_len, dtype=tuple)
+
+    count = np.intc(0)
     for i in range(0, k):
         for j in range(i, k):
             if i != j:
                 # This method appends the attractiveness and the cluster index for both clusters
-                attractiveness_list.append((return_attractiveness(cluster_list[i], cluster_list[j]), i, j))
+                attractiveness_list[count] = return_attractiveness(cluster_list[i], cluster_list[j])
+                attractiveness_list_c[count] = (i, j)
+                count += 1
 
     # Sorts this list by values
-    return sorted(attractiveness_list, key=lambda x: x[0], reverse=True)
+    return_array = np.column_stack((attractiveness_list, attractiveness_list_c))
+    return np.flipud(return_array[return_array[:, 0].argsort()])
 
 
 def is_inter_interested(cluster1: Cluster, cluster2: Cluster) -> bool:
@@ -99,8 +110,4 @@ def can_merge(cluster1: Cluster, cluster2: Cluster, attractiveness: float) -> bo
     :param cluster2: the second cluster
     :return: Returns True if the clusters can be merged
     """
-    # If attractiveness has not been calculated yet, calculate it
-    if attractiveness == -1:
-        attractiveness = return_attractiveness(cluster1, cluster2)
-
     return attractiveness >= (cluster1.return_density() + cluster2.return_density())
