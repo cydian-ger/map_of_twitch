@@ -141,18 +141,14 @@ def cluster(cluster_list: list[Cluster], **kwargs) -> list[Cluster]:
         # Keeps track of if
         changed = False
         attractiveness_list = create_attractiveness_list(clustered_list)
-
         for attr in attractiveness_list:
-            attractiveness = attr[0]
-            i = attr[1][0]
-            j = attr[1][1]
             # Checks if merge is possible
 
-            if can_merge(clustered_list[i], clustered_list[j], attractiveness):
+            if can_merge(clustered_list[attr[1]], clustered_list[attr[2]], attr[0]):
                 # Merges the two clusters
-                clustered_list[i].merge(cluster_list[j])
+                clustered_list[attr[1]].merge(cluster_list[attr[2]])
                 # Removes the now merged second cluster
-                clustered_list.pop(j)
+                clustered_list.pop(attr[2])
                 # indicates that a merge has happened
                 changed = True
                 break

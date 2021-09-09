@@ -70,24 +70,13 @@ def create_attractiveness_list(cluster_list: [Cluster]):
     :return:
     """
     k = len(cluster_list)
-    # Fits list size perfectly
-    a_len = int((k * (k - 1)) / 2)
-    # Init arrays
-    attractiveness_list = np.zeros(a_len, dtype=float)
-    attractiveness_list_c = np.zeros(a_len, dtype=tuple)
-
-    count = np.intc(0)
+    attractiveness_list = []
     for i in range(0, k):
         for j in range(i, k):
             if i != j:
                 # This method appends the attractiveness and the cluster index for both clusters
-                attractiveness_list[count] = return_attractiveness(cluster_list[i], cluster_list[j])
-                attractiveness_list_c[count] = (i, j)
-                count += 1
-
-    # Sorts this list by values
-    return_array = np.column_stack((attractiveness_list, attractiveness_list_c))
-    return np.flipud(return_array[return_array[:, 0].argsort()])
+                attractiveness_list.append((return_attractiveness(cluster_list[i], cluster_list[j]), i, j))
+    return sorted(attractiveness_list, key=lambda x: x[0], reverse=True)
 
 
 def is_inter_interested(cluster1: Cluster, cluster2: Cluster) -> bool:
