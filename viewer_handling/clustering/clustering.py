@@ -136,7 +136,7 @@ def cluster(cluster_list: list[Cluster], **kwargs) -> list[Cluster]:
     clustered_list = cluster_list
 
     progress = tqdm(range(0, iter_max), disable=iter_count)
-    progress.set_description("Calculating Clusters :")
+    progress.set_description("Calculating Clusters ")
     for _ in progress:
         # Keeps track of if
         changed = False
@@ -146,7 +146,7 @@ def cluster(cluster_list: list[Cluster], **kwargs) -> list[Cluster]:
 
             if can_merge(clustered_list[attr[1]], clustered_list[attr[2]], attr[0]):
                 # Merges the two clusters
-                clustered_list[attr[1]].merge(cluster_list[attr[2]])
+                clustered_list[attr[1]].merge(clustered_list[attr[2]])
                 # Removes the now merged second cluster
                 clustered_list.pop(attr[2])
                 # indicates that a merge has happened
@@ -162,3 +162,49 @@ def cluster(cluster_list: list[Cluster], **kwargs) -> list[Cluster]:
             return __cluster_return(cluster_list, kwargs)
 
     return __cluster_return(cluster_list, kwargs)
+
+
+def cluster_quick_presort(cluster_list: list[Cluster], **kwargs) -> list[Cluster]:
+    """
+    This method quickly (yet sloppily) divides clusters
+
+    PARAM:
+
+    cluster_list, list of clusters
+
+    KWARGS:
+
+    "iter_stop": Stops the quick clustering after x iterations, default -1
+
+    "iter_auto_percent": stops the iteration once the amount of clusters is x% of the original amount, default = -1%
+
+    "iter_count" -> bool: if True, enables tqdm progress bar
+
+    :return:
+    """
+
+    iter_stop = 10
+
+    iter_count = True
+    if kwargs.__contains__("iter_count"):
+        iter_count = not (kwargs.get("iter_count"))
+
+    clustered_list = cluster_list
+
+    for _ in tqdm(range(0, iter_stop), disable=not iter_count):
+        # Keeps track of if
+        changed = False
+        attractiveness_list = create_attractiveness_list(clustered_list)
+
+        for attr in attractiveness_list:
+            # This merges every cluster with its highest attractiveness match,
+            # TODO create new attractiveness_list that returns only the highest match
+            # TODO find a way to resolve multi merge conflicts, probably a merge many function
+            pass
+
+        # If no change or merge has happened this iteration, return
+        if not changed:
+            return __cluster_return(cluster_list, kwargs)
+
+    return __cluster_return(cluster_list, kwargs)
+

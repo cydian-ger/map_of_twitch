@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # # generate(b.get("name"), a)
     # csv_name = b.get("name")
 
-    csv_name = "result/21_09_09_03_37_07"
+    csv_name = "result/21_09_10_00_12_23"
 
     with open(csv_name + "_edges.csv", newline='') as f:
         reader = csv.reader(f)

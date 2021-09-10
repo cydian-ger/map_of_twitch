@@ -88,7 +88,7 @@ class Cluster:
 
     def __str__(self):
         node_names = self.get_nodes()
-        return "|nodes: %s, edges: %s, density: %s|" % (node_names, self.edge_list, self.return_density())
+        return "nodes: %s, density: %s" % (node_names, self.return_density())
 
     def __repr__(self):
         return str(self)

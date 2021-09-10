@@ -1,8 +1,4 @@
-import sys
-from functools import cache
-
-import numpy as np
-from sys import getsizeof
+import functools
 from viewer_handling.clustering.cluster import Cluster
 
 
@@ -47,6 +43,7 @@ def get_overlap_edges_amount(cluster1: Cluster, cluster2: Cluster) -> int:
     return edge_overlap_amount
 
 
+@functools.lru_cache(maxsize=92665, typed=False)
 def return_attractiveness(cluster1: Cluster, cluster2: Cluster) -> float:
     """
     Attractiveness of 2 clusters is determined by dividing the combined weight of shared edges,

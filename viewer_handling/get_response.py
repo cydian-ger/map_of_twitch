@@ -28,7 +28,7 @@ def get_response(streamer_name: str) -> dict:
 def get_response_from_streamer_list(*, streamer_list: [str]) -> [tuple]:
     live_dict = {}
     with tqdm(total=len(streamer_list)) as pbar:
-        pbar.set_description("Fetching Steamer-data:")
+        pbar.set_description("Fetching Steamer-data")
         with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
             future_to_url = {executor.submit(get_response, streamer): streamer for streamer in streamer_list}
             for future in concurrent.futures.as_completed(future_to_url):
