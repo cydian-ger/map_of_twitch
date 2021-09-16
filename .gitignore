@@ -4,3 +4,8 @@
 /json_dict.json
 /map_of_twitch.html
 /test_store_viewers/
+/viewer_sets/
+/test_directories.py
+/test_clustering.py
+/start.bat
+/viewer_handling/clustering/cluster_test.py

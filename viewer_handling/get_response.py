@@ -25,7 +25,7 @@ def get_response(streamer_name: str) -> dict:
     return {}
 
 
-def get_response_from_streamer_list(*, streamer_list: [str]) -> [tuple]:
+def get_response_from_streamer_list(*, streamer_list: [str], include_not_live=False) -> dict:
     live_dict = {}
     with tqdm(total=len(streamer_list)) as pbar:
         pbar.set_description("Fetching Steamer-data")
@@ -37,6 +37,9 @@ def get_response_from_streamer_list(*, streamer_list: [str]) -> [tuple]:
                 try:
                     if future.result():
                         live_dict[streamer] = get_viewers(future.result())
+                    # If it is enabled to include non live streams:
+                    elif include_not_live:
+                        live_dict[streamer] = {}
                 finally:
                     pass
                     # Log later

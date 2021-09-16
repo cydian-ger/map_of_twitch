@@ -1,7 +1,4 @@
 import hashlib
-from functools import cache
-
-import numpy as np
 
 
 class Cluster:
@@ -88,7 +85,7 @@ class Cluster:
 
     def __str__(self):
         node_names = self.get_nodes()
-        return "nodes: %s, density: %s" % (node_names, self.return_density())
+        return "nodes: %s" % node_names
 
     def __repr__(self):
         return str(self)

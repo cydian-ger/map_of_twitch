@@ -1,5 +1,5 @@
 def get_overlap_percentage(length1: int, length2: int):
-    return round(((length1 + length2) / 2) * 0.025)
+    return round(((length1 + length2) / 2) * 0.05)
 # What is the overlap percentage
 # ((len(dict) + len(dict)) / 2) * 0.01%
 

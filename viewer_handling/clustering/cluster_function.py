@@ -1,4 +1,4 @@
-import functools
+import numpy as np
 from viewer_handling.clustering.cluster import Cluster
 
 
@@ -43,12 +43,11 @@ def get_overlap_edges_amount(cluster1: Cluster, cluster2: Cluster) -> int:
     return edge_overlap_amount
 
 
-@functools.lru_cache(maxsize=92665, typed=False)
 def return_attractiveness(cluster1: Cluster, cluster2: Cluster) -> float:
     """
     Attractiveness of 2 clusters is determined by dividing the combined weight of shared edges,
     (edges that connect this cluster to the other cluster), by the multiplied amount of both clusters nodes
-    At least over 50% speed increase for caching
+    At least over 50% speed increase for caching 1:31
     :param cluster1: first cluster
     :param cluster2: second cluster
     :return: Returns number value of attractiveness of 2 clusters
@@ -76,6 +75,37 @@ def create_attractiveness_list(cluster_list: [Cluster]):
     return sorted(attractiveness_list, key=lambda x: x[0], reverse=True)
 
 
+def create_highest_attractiveness_pairs(cluster_list: [Cluster]) -> list:
+    """
+    Creates the pairs of highest attracted clusters
+    Gets the pointer and attractiveness value for every cluster, aka the cluster it is most interest in merging with,
+    If a cluster is mutual 1:(2, 50) <-> 2:(1, 50) it is added to the list
+    :param cluster_list: list of clusters
+    :return: List of tuples (self_index, pointer_on_list, attr_value)
+    """
+    k = len(cluster_list)
+    attractiveness_list = np.zeros(k, dtype=tuple)
+    pairs = []
+    for i in range(0, k):
+        highest_attr = 0
+        pos = -1
+        for j in range(0, k):
+            if i != j:
+                attr = return_attractiveness(cluster_list[i], cluster_list[j])
+                if attr > highest_attr:
+                    highest_attr = attr
+                    pos = j
+        attractiveness_list[i] = (i, pos, highest_attr)
+
+    for attr in attractiveness_list:
+        if attr[0] == attractiveness_list[attr[1]][1]:
+            if can_merge(cluster_list[attr[0]], cluster_list[attr[1]], attr[2]):
+                pair = (min(attr[0], attr[1]), max(attr[0], attr[1]))
+                if not pairs.__contains__(pair):
+                    pairs.append(pair)
+    return pairs
+
+
 def is_inter_interested(cluster1: Cluster, cluster2: Cluster) -> bool:
     """
     Checks if two clusters meet the condition of being inter_interested
@@ -97,3 +127,65 @@ def can_merge(cluster1: Cluster, cluster2: Cluster, attractiveness: float) -> bo
     :return: Returns True if the clusters can be merged
     """
     return attractiveness >= (cluster1.return_density() + cluster2.return_density())
+
+
+def return_separated_clusters(cluster_list: list[Cluster]) -> list[list[Cluster]]:
+    """
+    Separates clusters, by deriving islands from the edge list
+    :param cluster_list: list of clusters
+    :return: Returns a list of separate clusters that share no edges outside of the cluster
+    """
+    # Puts the first element inside of the list
+    cluster_list_list = [[cluster_list[0]]]
+    # Removes it to avoid double
+    cluster_list.pop(0)
+
+    # For every cluster, checks if a cluster that it is connected to, (overlap edges)
+    # Is already in any list, if not creates a new list and puts it there
+    for cluster in cluster_list:
+        changed = False
+        for c_list in cluster_list_list:
+            for c in c_list:
+                if get_overlap_edges_sum(c, cluster) > 0:
+                    c_list.append(cluster)
+                    changed = True
+                    break
+            if changed:
+                break
+        if not changed:
+            cluster_list_list.append([cluster])
+
+    changed = True
+
+    while changed is True:
+        changed = False
+        # This is just to type hint
+        merges = {()}
+        merges.clear()
+        # Find the merges
+        # Check for every cluster in every cluster list, if it has a shared edge with any cluster,
+        # In any other cluster list
+        # If yes add to the merges list
+        for c_index in range(0, len(cluster_list_list)):
+            for cluster in cluster_list_list[c_index]:
+                for c_index_2 in range(0, len(cluster_list_list)):
+                    for cluster_2 in cluster_list_list[c_index_2]:
+                        if get_overlap_edges_sum(cluster_2, cluster) > 0:
+                            if c_index != c_index_2:
+                                smol = min(c_index, c_index_2)
+                                bigg = max(c_index, c_index_2)
+                                merges.add((smol, bigg))
+
+        # Merge em
+        merge_list = list(merges)
+        merge_list.reverse()
+        for merge in merge_list:
+            # Literally just adds the two list then removes the second one
+            cluster_list_list[merge[0]] += cluster_list_list[merge[1]]
+            cluster_list_list.pop(merge[1])
+            changed = True
+
+        if len(cluster_list_list) == 1:
+            break
+
+    return cluster_list_list
