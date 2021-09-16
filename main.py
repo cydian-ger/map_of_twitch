@@ -1,7 +1,8 @@
-from file_management import update_all_dirs
+import time
+import schedule
 from file_management import update_all_dirs
 from file_management import write
-from viewer_handling.get_response import get_response_from_streamer_list, isLive
+from viewer_handling.get_response import get_response_from_streamer_list, get_response
 
 
 def get_new():
@@ -16,7 +17,6 @@ def get_new():
 
 
 if __name__ == '__main__':
-    """
     schedule.every(15).minutes.do(get_new)
     get_new()
     while True:
@@ -24,5 +24,3 @@ if __name__ == '__main__':
         # Checks for all scheduled tasks
         schedule.run_pending()
         time.sleep(0.1)
-    """
-    get_new()
