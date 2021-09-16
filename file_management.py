@@ -38,7 +38,7 @@ def write(streamer: str, viewers: [str], stream_id: str):
     files = sorted(listdir(path), reverse=True)
     # If a stream viewer count for this specific stream exists, write it into the old file
     # By loading the old viewers and set.unioning (aka unique merging) them together and
-    # Overwritting the olds files content
+    # Over-writing the olds files content.
     if files.__contains__(stream_id):
         old_viewers = read(path_file)
         # New viewers is a set of old viewers + new viewers, as to guarantee uniqueness
