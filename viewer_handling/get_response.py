@@ -6,6 +6,39 @@ from tqdm import tqdm
 from viewer_handling.get_viewers import get_viewers
 
 
+HEADERS = { 'client-id' : 'kimne78kx3ncx6brgo4mv6wki5h1ko' }
+GQL_QUERY = """
+query($login: String) {
+    user(login: $login) {
+        stream {
+            id
+        }
+    }
+}
+"""
+
+
+def isLive(username):
+    """
+    https://stackoverflow.com/questions/12064130/is-there-any-way-to-check-if-a-twitch-stream-is-live-using-python
+    NOTE BIG NOTE -> THIS METHOD RETURNS THE STREAM ID SO I CAN SAVE STREAMS BY ID INSTEAD OF TIME STAMPS, THIS IS HUGE
+    :param username:
+    :return:
+    """
+    QUERY = {
+        'query': GQL_QUERY,
+        'variables': {
+            'login': username
+        }
+    }
+
+    response = requests.post('https://gql.twitch.tv/gql',
+                             json=QUERY, headers=HEADERS)
+    dict_response = response.json()
+    print(dict_response)
+    return True if dict_response['data']['user']['stream'] is not None else False
+
+
 def get_response(streamer_name: str) -> dict:
     """
     If the broadcaster is in his own stream then he is live
@@ -16,11 +49,10 @@ def get_response(streamer_name: str) -> dict:
     try:
         streamer_name = streamer_name.lower()
         response = json.loads(requests.get("http://tmi.twitch.tv/group/user/%s/chatters" % streamer_name).text)
-        contents = requests.get('https://www.twitch.tv/' + streamer_name).content.decode('utf-8')
 
-        if 'isLiveBroadcast' in contents:
+        if isLive(streamer_name):
             return response
-    except requests.HTTPError or requests.ConnectionError or Exception:
+    except requests.HTTPError or requests.ConnectionError:
         pass
     return {}
 
