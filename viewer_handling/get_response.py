@@ -6,18 +6,6 @@ from tqdm import tqdm
 from viewer_handling.get_viewers import get_viewers
 
 
-HEADERS = { 'client-id' : 'kimne78kx3ncx6brgo4mv6wki5h1ko' }
-GQL_QUERY = """
-query($login: String) {
-    user(login: $login) {
-        stream {
-            id
-        }
-    }
-}
-"""
-
-
 def isLive(username):
     """
     https://stackoverflow.com/questions/12064130/is-there-any-way-to-check-if-a-twitch-stream-is-live-using-python
@@ -25,6 +13,17 @@ def isLive(username):
     :param username:
     :return:
     """
+    HEADERS = {'client-id': 'kimne78kx3ncx6brgo4mv6wki5h1ko'}
+    GQL_QUERY = """
+    query($login: String) {
+        user(login: $login) {
+            stream {
+                id
+            }
+        }
+    }
+    """
+
     QUERY = {
         'query': GQL_QUERY,
         'variables': {
@@ -35,11 +34,11 @@ def isLive(username):
     response = requests.post('https://gql.twitch.tv/gql',
                              json=QUERY, headers=HEADERS)
     dict_response = response.json()
-    print(dict_response)
-    return True if dict_response['data']['user']['stream'] is not None else False
+    # Returns stream id if live, else returns nothing
+    return dict_response['data']['user']['stream'] if dict_response['data']['user']['stream'] is not None else None
 
 
-def get_response(streamer_name: str) -> dict:
+def get_response(streamer_name: str) -> tuple:
     """
     If the broadcaster is in his own stream then he is live
     :param streamer_name: Name of the stream to be checked
@@ -50,11 +49,13 @@ def get_response(streamer_name: str) -> dict:
         streamer_name = streamer_name.lower()
         response = json.loads(requests.get("http://tmi.twitch.tv/group/user/%s/chatters" % streamer_name).text)
 
-        if isLive(streamer_name):
-            return response
+        live = isLive(streamer_name)
+        # If string not empty / None
+        if not not live:
+            return response, live
     except requests.HTTPError or requests.ConnectionError:
         pass
-    return {}
+    return ()
 
 
 def get_response_from_streamer_list(*, streamer_list: [str], include_not_live=False) -> dict:
