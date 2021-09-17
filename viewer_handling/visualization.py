@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 
 # https://pyvis.readthedocs.io/en/latest/tutorial.html
-def generate(csv, streamer_list):
+def generate(csv, streamer_list: dict):
     """
     :param csv:
     :param streamer_list: Streamer list, so that the amount of viewers is connected to the name (used for value)
@@ -45,16 +45,3 @@ def generate(csv, streamer_list):
         pbar_2.update(1)
 
     got_net.show('map_of_twitch.html')
-
-
-def generate_u(csv, streamer_list):
-    open(csv, "r")
-    got_data = pd.read_csv(csv)
-
-    sources = got_data['Source']
-    targets = got_data['Target']
-    weights = got_data['Weight']
-
-    edge_data = zip(sources, targets, weights)
-
-    return

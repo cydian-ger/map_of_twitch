@@ -51,30 +51,53 @@ def write(streamer: str, viewers: [str], stream_id: str):
         return
 
 
-def get_all_set(streamer):
+def get_all_as_set(streamer: str) -> set:
     """
     Returns all files from a streamers directory
     :param streamer:
     :return:
     """
-    return
+    path = viewer_dir + "/" + streamer
+    files = sorted(listdir(path), reverse=True)
+
+    if len(files) == 0:
+        return set()
+
+    viewers = []
+    for file in files:
+        viewers += read(path + "/" + file)
+
+    return set(viewers)
 
 
-def get_x_set(streamer: str, amount: int, **kwargs):
+def get_x_as_set(streamer: str, amount: int, args=None, **kwargs) -> set:
     """
     Returns the last x amount of files in a dir as a viewer_set
 
-    KWARGS: exclude_low: excludes all results below x
+    KWARGS: exclude_low: excludes all results below x, default = 0
     :param amount:
     :param streamer:
+    :param args:
     :param kwargs:
     :return:
     """
     path = viewer_dir + "/" + streamer
     files = sorted(listdir(path), reverse=True)
 
-    old_viewers = []
+    if len(files) == 0:
+        return set()
+
+    if kwargs.__contains__("exclude_low") and len(files) < kwargs.get("exclude_low"):
+        return set()
+
     viewers = []
-    viewers = sorted(list(set(old_viewers).union(viewers)))
-    if kwargs.__contains__("exclude_low") and kwargs.get("exclude_low") is True:
-        return {}
+
+    # If the amount required is more than there are files
+    # But also low files are not excluded: change the amount to len of files
+    if amount > len(files):
+        amount = len(files)
+
+    for _ in range(0, amount):
+        viewers = viewers + read(path + "/" + files[_])
+
+    return set(viewers)
