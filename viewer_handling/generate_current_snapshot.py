@@ -3,13 +3,16 @@ from datetime import datetime
 from viewer_handling.get_overlap import get_overlap
 
 
+# Overlap percentage is important for clustering
+OVERLAP_PERCENTAGE = 0.001
+
+
 def generate_current_snapshot(overlap_dict: dict, **kwargs) -> dict:
     edges = []
     nodes = []
     name = str(datetime.now().strftime("result/%y_%m_%d_%H_%M_%S"))
     with open(name + "_edges.csv", "w", newline="") as csv_file:
         writer = csv.writer(csv_file)
-
         # Writes header
         writer.writerow(["Source", "Target", "Weight"])
         # From here the other streamers are removed
@@ -49,7 +52,7 @@ def generate_current_snapshot(overlap_dict: dict, **kwargs) -> dict:
         overlap_list = list(overlap_dict.keys())
 
         for streamer in overlap_list:
-            length = len(overlap_dict[streamer]) / 1000
+            length = len(overlap_dict[streamer]) * OVERLAP_PERCENTAGE
             writer.writerow((streamer, length))
             nodes.append((streamer, length))
     return {"name": name, "edges": edges, "nodes": nodes}
