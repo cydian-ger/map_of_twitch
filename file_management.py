@@ -1,20 +1,19 @@
 import csv
-from datetime import datetime
-from os import listdir, rename
+from os import listdir
 from pathlib import Path
 
 viewer_dir = "viewer_sets"
-file_ending = ".txt"
 
 
 def update_all_dirs(streamer_list: list):
+    Path(viewer_dir).mkdir(parents=True, exist_ok=True)
     for streamer in streamer_list:
         Path(viewer_dir + "/" + streamer.lower()).mkdir(parents=True, exist_ok=True)
 
 
 def read(path: str) -> [str]:
     """
-    Wow
+    Wow such code
     :param path:
     :return:
     """

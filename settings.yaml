@@ -1,0 +1,4 @@
+Timeout_Time: 10
+Max_Workers: 256
+Overlap_Multiplier: 0.001
+Viewer_Dir: "viewer_sets"
