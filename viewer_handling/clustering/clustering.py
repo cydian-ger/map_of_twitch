@@ -3,7 +3,7 @@
 from tqdm import tqdm
 from viewer_handling.clustering.cluster import Cluster
 from viewer_handling.clustering.cluster_function import create_attractiveness_list, can_merge, \
-    create_highest_attractiveness_pairs
+    create_highest_attractiveness_pairs, get_overlap_edges_sum
 import warnings
 
 
@@ -219,9 +219,73 @@ def cluster_fast(cluster_list: list[Cluster], args=None, **kwargs) -> list[Clust
     return clustered_list
 
 
+def return_separated_clusters(cluster_list: list[Cluster]) -> list[list[Cluster]]:
+    """
+    Separates clusters, by deriving islands from the edge list
+    :param cluster_list: list of clusters
+    :return: Returns a list of separate clusters that share no edges outside of the cluster
+    """
+    # Puts the first element inside of the list
+    cluster_list_list = [[cluster_list[0]]]
+    # Removes it to avoid double
+    cluster_list.pop(0)
+
+    # For every cluster, checks if a cluster that it is connected to, (overlap edges)
+    # Is already in any list, if not creates a new list and puts it there
+    for cluster in cluster_list:
+        changed = False
+        for c_list in cluster_list_list:
+            for c in c_list:
+                if get_overlap_edges_sum(c, cluster) > 0:
+                    c_list.append(cluster)
+                    changed = True
+                    break
+            if changed:
+                break
+        if not changed:
+            cluster_list_list.append([cluster])
+
+    changed = True
+
+    while changed is True:
+        changed = False
+        # This is just to type hint
+        merges = {()}
+        merges.clear()
+        # Find the merges
+        # Check for every cluster in every cluster list, if it has a shared edge with any cluster,
+        # In any other cluster list
+        # If yes add to the merges list
+        for c_index in range(0, len(cluster_list_list)):
+            for cluster in cluster_list_list[c_index]:
+                for c_index_2 in range(0, len(cluster_list_list)):
+                    for cluster_2 in cluster_list_list[c_index_2]:
+                        if get_overlap_edges_sum(cluster_2, cluster) > 0:
+                            if c_index != c_index_2:
+                                smol = min(c_index, c_index_2)
+                                bigg = max(c_index, c_index_2)
+                                merges.add((smol, bigg))
+
+        # Merge em
+        merge_list = list(merges)
+        merge_list.reverse()
+        for merge in merge_list:
+            # Literally just adds the two list then removes the second one
+            cluster_list_list[merge[0]] += cluster_list_list[merge[1]]
+            cluster_list_list.pop(merge[1])
+            changed = True
+
+        if len(cluster_list_list) == 1:
+            break
+
+    return cluster_list_list
+
+
 def cluster_separate(cluster_list: list[Cluster], **kwargs) -> list[list[Cluster]]:
     """
-    This method divides a list of clusters into adequate clusters
+    This method divides a list of clusters into adequate clusters,
+    Referred to hereby as a patch. A patch consists only of clusters connected to at least one other cluster
+    in the patch
 
     PARAM:
 
@@ -229,13 +293,19 @@ def cluster_separate(cluster_list: list[Cluster], **kwargs) -> list[list[Cluster
 
     KWARGS:
 
+    iter_patch -> bool
     """
+
+    iter_patch = False
+    if kwargs.__contains__("iter_patch") and kwargs.get("iter_patch"):
+        iter_patch = True
 
     clustered_list = []
 
-    separate_clusters = []
+    separate_clusters = return_separated_clusters(cluster_list)
 
-    clustered_list = cluster_fast(cluster_list, kwargs)
+    for patch in tqdm(separate_clusters, disable=iter_patch):
+        clustered_patch = cluster_fast(patch, kwargs)
 
     cluster_list = __cluster_return(clustered_list, kwargs)
     return cluster_list

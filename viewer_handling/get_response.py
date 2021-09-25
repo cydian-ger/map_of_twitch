@@ -21,11 +21,13 @@ TIMOUT_TIME = 15
 MAX_WORKERS = 256
 
 
-def is_live(streamer_name: str, proxies: [str]) -> tuple:
+def is_live(streamer_name: str, proxies: [str], throw_error=False) -> tuple:
     # https://www.gkbrk.com/2020/12/twitch-graphql/
     streamer_name = streamer_name.lower()
-    proxy_choice = random.choice(proxies)
-    proxy = {"http://": proxy_choice, "https://": proxy_choice}
+    proxy = None
+    if proxies is not None:
+        proxy_choice = random.choice(proxies)
+        proxy = {"http://": proxy_choice, "https://": proxy_choice}
 
     QUERY = {
         'query': GQL_QUERY,
@@ -50,46 +52,55 @@ def is_live(streamer_name: str, proxies: [str]) -> tuple:
             # Returns if the stream is live
             return streamer_name, dict_response['data']['user']['stream']['id']
 
-    except requests.exceptions.RequestException or requests.exceptions.Timeout:
-        pass
+    except requests.exceptions.RequestException or requests.exceptions.Timeout or Exception as e:
+        if throw_error:
+            raise RuntimeError(repr(e))
     return ()
 
 
-def get_response(streamer_name: str, proxies: [str]):
+def get_response(streamer_name: str, proxies: [str], throw_error=False):
     """
     If the broadcaster is in his own stream then he is live
+    :param throw_error:
     :param proxies:
-    :param session:
     :param streamer_name: Name of the stream to be checked
     :return: Returns the response if the stream is live, else returns None
     """
     # Doesnt work if not lower
-    proxy_choice = random.choice(proxies)
-    proxy = {"http://": proxy_choice, "https://": proxy_choice}
+    proxy = None
+    if proxies is not None:
+        proxy_choice = random.choice(proxies)
+        proxy = {"http://": proxy_choice, "https://": proxy_choice}
+
     try:
         streamer_name = streamer_name.lower()
         response = json.loads(requests.get("http://tmi.twitch.tv/group/user/%s/chatters" % streamer_name,
                                            timeout=TIMOUT_TIME, proxies=proxy).text)
         return response
-    except requests.HTTPError or requests.ConnectionError:
-        pass
+    except requests.HTTPError or requests.ConnectionError or Exception as e:
+        if throw_error:
+            raise RuntimeError(repr(e))
     return ()
 
 
 def get_proxies():
-    """
-    # https://www.scrapehero.com/how-to-rotate-proxies-and-ip-addresses-using-python-3/
-    :return: Returns a list of free proxies to use
-    """
-    url = 'https://free-proxy-list.net/'
-    response = requests.get(url)
-    parser = fromstring(response.text)
-    proxy_list = []
-    for i in parser.xpath('//tbody/tr')[:10]:
-        if i.xpath('.//td[7][contains(text(),"yes")]'):
-            proxy = ":".join([i.xpath('.//td[1]/text()')[0], i.xpath('.//td[2]/text()')[0]])
-            proxy_list.append(proxy)
-    return proxy_list
+    try:
+        """
+        # https://www.scrapehero.com/how-to-rotate-proxies-and-ip-addresses-using-python-3/
+        :return: Returns a list of free proxies to use
+        """
+        url = 'https://free-proxy-list.net/'
+        response = requests.get(url)
+        parser = fromstring(response.text)
+        proxy_list = []
+        for i in parser.xpath('//tbody/tr')[:10]:
+            if i.xpath('.//td[7][contains(text(),"yes")]'):
+                proxy = ":".join([i.xpath('.//td[1]/text()')[0], i.xpath('.//td[2]/text()')[0]])
+                proxy_list.append(proxy)
+        return proxy_list
+    except Exception as e:
+        print(repr(e))
+        return []
 
 
 def get_live_streamer_list(streamer_list: [str]) -> [str]:
