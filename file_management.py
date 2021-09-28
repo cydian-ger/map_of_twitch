@@ -1,6 +1,10 @@
+import concurrent.futures
+import concurrent.futures.thread
 import csv
 from os import listdir
 from pathlib import Path
+
+from tqdm import tqdm
 
 viewer_dir = "viewer_sets"
 
@@ -99,6 +103,10 @@ def get_x_as_set(streamer: str, amount: int, args=None, **kwargs) -> set:
     for _ in range(0, amount):
         viewers = viewers + read(path + "/" + files[_])
 
+    # Returns empty set
+    if len(viewers) == 0:
+        return set()
+
     return set(viewers)
 
 
@@ -110,4 +118,20 @@ def get_existing_as_sets(streamer_list: [str], amount: int, args=None, **kwargs)
     :param kwargs:
     :return:
     """
+    from settings import Max_Workers
+    response_dict = {}
 
+    with tqdm(total=len(streamer_list)) as pbar:
+        pbar.set_description("Getting Viewer-sets  ")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=Max_Workers) as executor:
+            future_to_url = {executor.submit(get_x_as_set, streamer, amount): streamer for streamer in streamer_list}
+            for future in concurrent.futures.as_completed(future_to_url):
+                pbar.update(1)
+                streamer = future_to_url[future]
+                try:
+                    if future.result():
+                        response_dict[streamer] = future.result()
+                finally:
+                    pass
+                    # Log later
+    return response_dict
