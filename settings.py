@@ -1,10 +1,5 @@
 import yaml
 
-Timeout_Time = 10
-Max_Workers = 64
-Overlap_Multiplier = 0.001
-Viewer_Dir = "viewer_sets"
-
 YAML = None
 try:
     with open("settings.yaml", "r") as settings:
@@ -46,3 +41,21 @@ if YAML.__contains__("Viewer_Dir"):
         raise TypeError("Viewer Dir must be str")
 else:
     raise ImportError("Field 'Viewer_Dir' not provided")
+
+if YAML.__contains__("Set_Size"):
+    try:
+        Set_Size = int(YAML.get("Set_Size"))
+        if Set_Size < 1:
+            raise IndexError("Set size can not be below 1")
+    except ValueError:
+        raise TypeError("Set size must be int")
+else:
+    raise ImportError("Field 'Set_Size' not provided")
+
+if YAML.__contains__("Streamer_List"):
+    try:
+        Streamer_List = str(YAML.get("Streamer_List"))
+    except ValueError:
+        raise TypeError("Streamer List must be str")
+else:
+    raise ImportError("Field 'Streamer_List' not provided")

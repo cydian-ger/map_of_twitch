@@ -57,6 +57,10 @@ def dir_status() -> str:
     NAME = "DIR status:   "
     try:
         from settings import Viewer_Dir
+    except Exception:
+        return NAME + "YAML_Error"
+
+    try:
         if path.exists(Viewer_Dir):
             print(Viewer_Dir)
             return NAME + OK

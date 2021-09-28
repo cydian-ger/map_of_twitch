@@ -1,5 +1,8 @@
 import csv
 from datetime import datetime
+
+from tqdm import tqdm
+
 from viewer_handling.get_overlap import get_overlap
 
 
@@ -41,7 +44,7 @@ def generate_current_snapshot(overlap_dict: dict, **kwargs) -> dict:
             # If someone is the last one scanned they are connected to themselves
             if count == 0:
                 writer.writerow([streamer, streamer, 0])
-                edges.append((streamer, streamer_2, 0))
+                edges.append((streamer, streamer, 0))
 
             # Removes streamer from the dict as to not have doubles
             overlap_list.remove(streamer)
@@ -56,6 +59,33 @@ def generate_current_snapshot(overlap_dict: dict, **kwargs) -> dict:
             writer.writerow((streamer, length))
             nodes.append((streamer, length))
     return {"name": name, "edges": edges, "nodes": nodes}
+
+
+def generate_network(overlap_dict: dict, **kwargs) -> dict:
+    edges = []
+    nodes = []
+    overlap_list = list(overlap_dict.keys())
+
+    for streamer in tqdm(overlap_list):
+        count = 0
+        for streamer_2 in overlap_list:
+            if streamer_2 != streamer:
+                overlap = get_overlap(overlap_dict[streamer], overlap_dict[streamer_2])
+                if overlap > 0:
+                    count += 1
+                    edges.append((streamer, streamer_2, overlap))
+
+        if count == 0:
+            edges.append((streamer, streamer, 0))
+
+        overlap_list.remove(streamer)
+
+    overlap_list = list(overlap_dict.keys())
+
+    for streamer in overlap_list:
+        length = len(overlap_dict[streamer]) * OVERLAP_PERCENTAGE
+        nodes.append((streamer, length))
+    return {"edges": edges, "nodes": nodes}
 
 
 if __name__ == "__main__":

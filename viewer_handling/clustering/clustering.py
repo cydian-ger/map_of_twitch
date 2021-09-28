@@ -183,6 +183,10 @@ def cluster_fast(cluster_list: list[Cluster], args=None, **kwargs) -> list[Clust
     :param kwargs:
     :return:
     """
+
+    if len(cluster_list) == 1:
+        return cluster_list
+
     if not not args and not kwargs:
         kwargs = args
 
@@ -222,13 +226,20 @@ def cluster_fast(cluster_list: list[Cluster], args=None, **kwargs) -> list[Clust
 def return_separated_clusters(cluster_list: list[Cluster]) -> list[list[Cluster]]:
     """
     Separates clusters, by deriving islands from the edge list
+
     :param cluster_list: list of clusters
+
     :return: Returns a list of separate clusters that share no edges outside of the cluster
     """
     # Puts the first element inside of the list
+    if len(cluster_list) <= 1:
+        return [cluster_list]
+
     cluster_list_list = [[cluster_list[0]]]
     # Removes it to avoid double
     cluster_list.pop(0)
+
+    # USE ONLY THE EDGE LISTS OR STH
 
     # For every cluster, checks if a cluster that it is connected to, (overlap edges)
     # Is already in any list, if not creates a new list and puts it there
@@ -271,9 +282,11 @@ def return_separated_clusters(cluster_list: list[Cluster]) -> list[list[Cluster]
         merge_list.reverse()
         for merge in merge_list:
             # Literally just adds the two list then removes the second one
-            cluster_list_list[merge[0]] += cluster_list_list[merge[1]]
-            cluster_list_list.pop(merge[1])
-            changed = True
+            # This avoids out of range adding (THE NON MERGE SHOULD STILL BE PICKED UP LATER)
+            if not (merge[1] >= len(cluster_list_list) or merge[0] >= len(cluster_list_list)):
+                cluster_list_list[merge[0]] += cluster_list_list[merge[1]]
+                cluster_list_list.pop(merge[1])
+                changed = True
 
         if len(cluster_list_list) == 1:
             break
@@ -296,16 +309,15 @@ def cluster_separate(cluster_list: list[Cluster], **kwargs) -> list[list[Cluster
     iter_patch -> bool
     """
 
-    iter_patch = False
+    iter_patch = True
     if kwargs.__contains__("iter_patch") and kwargs.get("iter_patch"):
-        iter_patch = True
-
-    clustered_list = []
+        iter_patch = False
 
     separate_clusters = return_separated_clusters(cluster_list)
 
+    clustered_list = []
     for patch in tqdm(separate_clusters, disable=iter_patch):
-        clustered_patch = cluster_fast(patch, kwargs)
+        clustered_list += cluster_fast(patch, kwargs)
 
     cluster_list = __cluster_return(clustered_list, kwargs)
     return cluster_list
@@ -313,7 +325,7 @@ def cluster_separate(cluster_list: list[Cluster], **kwargs) -> list[list[Cluster
 
 def cluster(cluster_list: list[Cluster], cluster_merge="default", **kwargs):
     """
-    This method quickly (yet sloppily) divides clusters
+    This method divides clusters
 
     PARAM:
 

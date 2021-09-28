@@ -100,3 +100,14 @@ def get_x_as_set(streamer: str, amount: int, args=None, **kwargs) -> set:
         viewers = viewers + read(path + "/" + files[_])
 
     return set(viewers)
+
+
+def get_existing_as_sets(streamer_list: [str], amount: int, args=None, **kwargs) -> [set]:
+    """
+    :param streamer_list:
+    :param amount:
+    :param args:
+    :param kwargs:
+    :return:
+    """
+
