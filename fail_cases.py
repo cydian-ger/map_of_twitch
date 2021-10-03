@@ -1,5 +1,4 @@
 from viewer_handling.get_response import get_proxies, is_live, get_response
-import os.path
 from os import path
 
 OK = "OK"
@@ -57,12 +56,11 @@ def dir_status() -> str:
     NAME = "DIR status:   "
     try:
         from settings import Viewer_Dir
-    except Exception:
+    except Exception as e:
         return NAME + "YAML_Error"
 
     try:
         if path.exists(Viewer_Dir):
-            print(Viewer_Dir)
             return NAME + OK
         else:
             raise NotADirectoryError("%s directory does not exist" % Viewer_Dir)

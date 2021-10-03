@@ -85,13 +85,14 @@ def create_highest_attractiveness_pairs(cluster_list: [Cluster]) -> list:
     """
     k = len(cluster_list)
     attractiveness_list = np.zeros(k, dtype=tuple)
+    cluster_list_np = np.asarray(cluster_list)
     pairs = []
     for i in range(0, k):
         highest_attr = 0
         pos = -1
         for j in range(0, k):
             if i != j:
-                attr = return_attractiveness(cluster_list[i], cluster_list[j])
+                attr = return_attractiveness(cluster_list_np[i], cluster_list_np[j])
                 if attr > highest_attr:
                     highest_attr = attr
                     pos = j
@@ -99,7 +100,7 @@ def create_highest_attractiveness_pairs(cluster_list: [Cluster]) -> list:
 
     for attr in attractiveness_list:
         if attr[0] == attractiveness_list[attr[1]][1]:
-            if can_merge(cluster_list[attr[0]], cluster_list[attr[1]], attr[2]):
+            if can_merge(cluster_list_np[attr[0]], cluster_list_np[attr[1]], attr[2]):
                 pair = (min(attr[0], attr[1]), max(attr[0], attr[1]))
                 if not pairs.__contains__(pair):
                     pairs.append(pair)

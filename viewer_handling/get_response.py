@@ -139,17 +139,5 @@ def get_response_from_streamer_list(*, streamer_list: [str]) -> dict:
     return live_dict
 
 
-def test_case_response() -> bool:
-    """
-    If this method works then the requests features work as intended
-    :return:
-    """
-    try:
-        get_response("cydian_")
-        return True
-    except Exception:
-        return False
-
-
 if __name__ == "__main__":
     pass

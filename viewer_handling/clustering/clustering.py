@@ -323,7 +323,7 @@ def cluster_separate(cluster_list: list[Cluster], **kwargs) -> list[list[Cluster
     return cluster_list
 
 
-def cluster(cluster_list: list[Cluster], cluster_merge="default", **kwargs):
+def cluster_main(cluster_list: list[Cluster], cluster_merge="fast", **kwargs):
     """
     This method divides clusters
 

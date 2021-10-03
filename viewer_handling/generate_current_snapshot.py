@@ -48,7 +48,7 @@ def generate_current_snapshot(overlap_dict: dict, **kwargs) -> dict:
 
             # Removes streamer from the dict as to not have doubles
             overlap_list.remove(streamer)
-    
+
     with open(name + "_nodes.csv", "w", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(["Source", "Weight"])
@@ -62,29 +62,56 @@ def generate_current_snapshot(overlap_dict: dict, **kwargs) -> dict:
 
 
 def generate_network(overlap_dict: dict, **kwargs) -> dict:
+    """
+    USE THIS THING
+    np.intersect1d(arr1, arr2, assume_unique=True)
+
+    :param overlap_dict:
+    :param kwargs:
+    :return:
+    """
+
     edges = []
     nodes = []
     overlap_list = list(overlap_dict.keys())
 
-    for streamer in tqdm(overlap_list):
-        count = 0
-        for streamer_2 in overlap_list:
-            if streamer_2 != streamer:
-                overlap = get_overlap(overlap_dict[streamer], overlap_dict[streamer_2])
-                if overlap > 0:
-                    count += 1
-                    edges.append((streamer, streamer_2, overlap))
+    drop_single = False
+    if kwargs.__contains__("drop_single") and kwargs.get("drop_single"):
+        drop_single = True
+    drop_list = []
 
-        if count == 0:
-            edges.append((streamer, streamer, 0))
+    with tqdm(total=round(len(overlap_list) / 2) + 1) as pbar:
+        pbar.set_description("Generating a Network ")
+        for streamer in overlap_list:
+            count = 0
+            for streamer_2 in overlap_list:
+                if streamer_2 != streamer:
+                    overlap = get_overlap(overlap_dict[streamer], overlap_dict[streamer_2])
+                    if overlap > 0:
+                        count += 1
+                        edges.append((streamer, streamer_2, overlap))
 
-        overlap_list.remove(streamer)
+            if count == 0:
+                if drop_single:
+                    drop_list.append(streamer)
+                else:
+                    edges.append((streamer, streamer, 0))
+
+            overlap_list.remove(streamer)
+            pbar.update(1)
 
     overlap_list = list(overlap_dict.keys())
+
+    if drop_single:
+        for drop_streamer in drop_list:
+            overlap_list.remove(drop_streamer)
+
+    # Separate the single nodes / exclude them
 
     for streamer in overlap_list:
         length = len(overlap_dict[streamer]) * OVERLAP_PERCENTAGE
         nodes.append((streamer, length))
+
     return {"edges": edges, "nodes": nodes}
 
 

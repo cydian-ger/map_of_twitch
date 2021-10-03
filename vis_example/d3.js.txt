@@ -1,5 +1,0 @@
-
-https://observablehq.com/@d3/force-directed-graph
-
-Idea replace the       .call(drag(simulation)); from node class with a side bar pop up
-that gives the streaming link, the amount of viewers at that point etc etc

@@ -5,6 +5,10 @@ def get_overlap_percentage(length1: int, length2: int):
 
 
 def get_overlap(set1: set, set2: set):
+    # If set is the same as itself returns 0
+    if set1 == set2:
+        return 0
+
     a = len(set1.intersection(set2))
     # if a <= get_overlap_percentage(len(set1), len(set2)):
     if a <= 300:
