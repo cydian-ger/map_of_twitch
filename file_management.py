@@ -3,7 +3,6 @@ import concurrent.futures.thread
 import csv
 from os import listdir
 from pathlib import Path
-
 from tqdm import tqdm
 
 viewer_dir = "viewer_sets"
